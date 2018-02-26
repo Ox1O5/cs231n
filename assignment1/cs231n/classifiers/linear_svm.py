@@ -27,7 +27,7 @@ def svm_loss_naive(W, X, y, reg):
   num_train = X.shape[0]
   loss = 0.0
   for i in xrange(num_train):
-    scores = X[i].dot(W)
+    scores = X[i].dot(W)          #(1,C)
     correct_class_score = scores[y[i]]
     for j in xrange(num_classes):
       if j == y[i]:
@@ -35,14 +35,15 @@ def svm_loss_naive(W, X, y, reg):
       margin = scores[j] - correct_class_score + 1 # note delta = 1
       if margin > 0:
         loss += margin
-
+        dW[:, y[i]] -=X[i]   #dWyi = -xi
+        dW[:, j] +=X[i]
   # Right now the loss is a sum over all training examples, but we want it
   # to be an average instead so we divide by num_train.
   loss /= num_train
-
+  dW /= num_train
   # Add regularization to the loss.
   loss += reg * np.sum(W * W)
-
+  dW += 2 * reg * W        #dR/dw = 2 * reg * W
   #############################################################################
   # TODO:                                                                     #
   # Compute the gradient of the loss function and store it dW.                #
@@ -70,7 +71,12 @@ def svm_loss_vectorized(W, X, y, reg):
   # Implement a vectorized version of the structured SVM loss, storing the    #
   # result in loss.                                                           #
   #############################################################################
-  pass
+  num_train = X.shape[0]
+  scores = np.dot(X,W)  #(N,C)
+  correct_class_scores = scores[np.arange(num_train),y].reshape(num_train,1)  #(N,1)
+  margins = np.maximum(0,scores - correct_class_scores + 1.0)            
+  margins[np.arange(num_train),y] = 0.0
+  loss = np.sum(margins) / num_train + reg * np.sum(np.square(W)) 
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
@@ -85,7 +91,9 @@ def svm_loss_vectorized(W, X, y, reg):
   # to reuse some of the intermediate values that you used to compute the     #
   # loss.                                                                     #
   #############################################################################
-  pass
+  coeff_mat = (margins > 0) * 1    #(N,C)                           #大于零的系数为1
+  coeff_mat[np.arange(num_train), y] = -1 * np.sum(coeff_mat, axis=1)    # j=yi 的系数为 -Σ1(sj - syi + 1)
+  dW = np.dot(X.T,coeff_mat) / num_train + 2 * reg * W
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
