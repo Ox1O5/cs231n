@@ -78,7 +78,7 @@ def softmax_loss_vectorized(W, X, y, reg):
   correct_class_score = scores[np.arange(num_train), y].reshape(num_train, 1)
   sum_exp = np.sum(np.exp(scores),axis = 1).reshape(num_train, 1 )
   loss = np.sum(-correct_class_score + np.log(sum_exp)) / num_train + reg * np.sum(W * W)
-  coeff_mat = np.exp(scores) / sum_exp #broadcast
+  coeff_mat = np.exp(scores) / sum_exp 
   coeff_mat[np.arange(num_train),y] += -1
   dW = np.dot(X.T, coeff_mat) / num_train + 2 * reg * W
   #############################################################################
