@@ -9,6 +9,7 @@ assignment1(FINISHED)
 
 assignment2(TODO)
 -
-
+layers.py中的坑：
+>    在spatial batch normalization 中：最后dgamma和dbeta的返回值要keepdims而不是返回shape=（C,)
 assignment3(TODO)
 -
